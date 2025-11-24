@@ -36,4 +36,17 @@ public class HelloWorldTest {
         String secondText = response.get("messages[1].message");
         System.out.println(secondText);
     }
+
+    @Test
+    public void PrintRedirectUrlTest() {
+        Response response = RestAssured
+                .given()
+                .redirects()
+                .follow(false)
+                .when()
+                .get("https://playground.learnqa.ru/api/long_redirect")
+                .andReturn();
+        String locationHeader = response.getHeader("Location");
+        System.out.println(locationHeader);
+    }
 }
