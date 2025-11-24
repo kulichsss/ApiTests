@@ -3,8 +3,6 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 public class HelloWorldTest {
     @Test
     public void helloWorldTest() {
