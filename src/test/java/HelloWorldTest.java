@@ -50,7 +50,7 @@ public class HelloWorldTest {
 
     @Test
     public void LongRedirectTest() {
-
+        int countRedirects = 0;
         String currentUrl = "https://playground.learnqa.ru/api/long_redirect";
         while (!(currentUrl == null)) {
             Response response = RestAssured
@@ -60,9 +60,11 @@ public class HelloWorldTest {
                     .when()
                     .get(currentUrl)
                     .andReturn();
+            countRedirects++;
             int statusCode = response.statusCode();
             if (statusCode == 200) {
                 System.out.println(currentUrl);
+                System.out.println("Количество редиректов "+ countRedirects);
             }
             if (currentUrl == null) {
                 break;
