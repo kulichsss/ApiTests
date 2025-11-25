@@ -1,10 +1,12 @@
 import io.restassured.RestAssured;
+import io.restassured.http.Cookie;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class HelloWorldTest {
     @Test
@@ -118,6 +120,48 @@ public class HelloWorldTest {
         }
         else {
             System.out.println("Задача еще не выполнена, нужен еще один запрос");
+        }
+    }
+
+    @Test
+    public void AuthTest() {
+        String authCookieUrl = "https://playground.learnqa.ru/ajax/api/get_secret_password_homework";
+        String checkAuthCookieUrl = "https://playground.learnqa.ru/ajax/api/check_auth_cookie";
+        String login = "super_admin";
+
+        DataProvide dataProvide = new DataProvide();
+        Set<String> passwords = dataProvide.passwords();
+
+        for (String password: passwords) {
+            Response authResponse = RestAssured
+                    .given()
+                    .formParam("login", login)
+                    .formParam("password", password)
+                    .when()
+                    .post(authCookieUrl)
+                    .andReturn();
+            String cookie = authResponse.getCookie("auth_cookie");
+
+            Map<String, String> authCookie = new HashMap<>();
+            authCookie.put("auth_cookie", cookie);
+
+            if (!cookie.isEmpty()) {
+                Response checkResponse = RestAssured
+                        .given()
+                        .formParam("login", login)
+                        .formParam("password", password)
+                        .cookies(authCookie)
+                        .when()
+                        .post(checkAuthCookieUrl)
+                        .andReturn();
+                String authCheckText = checkResponse.getBody().asString();
+
+                if (authCheckText.equals("You are authorized")) {
+                    System.out.println(authCheckText);
+                    System.out.println(password);
+                    break;
+                }
+            }
         }
     }
 }
