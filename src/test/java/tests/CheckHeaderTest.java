@@ -17,7 +17,6 @@ public class CheckHeaderTest {
                 .get("https://playground.learnqa.ru/api/homework_header")
                 .andReturn();
         Headers headers = response.getHeaders();
-        System.out.println(headers);
 
         for (Header header: headers) {
             String nameHeader = header.getName();
