@@ -16,8 +16,13 @@ public class CheckCookieTest {
                 .get("https://playground.learnqa.ru/api/homework_cookie")
                 .andReturn();
         Map<String, String> cookies = response.getCookies();
+
         assertNotNull(cookies, "Куков нет в ответе на запрос");
-        String actualValue = cookies.get("HomeWork");
-        assertEquals("hw_value", actualValue, "Неверное значение куки HomeWork");
+        for (Map.Entry<String, String> cookie: cookies.entrySet()) {
+            String cookieKey = cookie.getKey();
+            String cookieValue = cookie.getValue();
+
+            assertEquals(cookieValue, response.getCookie(cookieKey), "Неверное значение куки " + cookieKey);
+        }
     }
 }
