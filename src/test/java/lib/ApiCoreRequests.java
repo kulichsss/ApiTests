@@ -40,6 +40,16 @@ public class ApiCoreRequests {
                 .andReturn();
     }
 
+    @Step("Make DELETED-request with header and cookie")
+    public Response makeDeletedRequestWithHeaderAndCookie(String url, String header, String cookie) {
+        return given()
+                .filter(new AllureRestAssured())
+                .header("x-csrf-token", header)
+                .cookie("auth_sid", cookie)
+                .delete(url)
+                .andReturn();
+    }
+
     @Step("Make PUT-request without header and cookie")
     public Response makePutRequestWithHeaderAndCookie(String url, Map<String, String> userData) {
         return given()
