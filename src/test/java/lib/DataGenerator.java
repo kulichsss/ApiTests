@@ -1,5 +1,7 @@
 package lib;
 
+import io.qameta.allure.Step;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,11 +13,13 @@ import java.util.stream.Stream;
 
 public class DataGenerator {
 
+    @Step("Создаём рандомный email")
     public static String getRandomEmail() {
         String genEmail = new SimpleDateFormat("yyyyMMddHHmm").format(new Date());
         return "Kul" + genEmail + "@example.com";
     }
 
+    @Step("Создаём некорректный email")
     public static String getWrongEmail(int n) {
         var rnd = new Random();
         Supplier<Integer> randomNumber = () -> rnd.nextInt(26);
@@ -27,6 +31,7 @@ public class DataGenerator {
         return result + "example.com";
     }
 
+    @Step("Создаём рандомное firstName")
     public static String getFirstName(int n) {
         var rnd = new Random();
         Supplier<Integer> randomNumber = () -> rnd.nextInt(26);
@@ -38,6 +43,7 @@ public class DataGenerator {
         return firstName;
     }
 
+    @Step("Создаём данные для регистрации пользователя")
     public static Map<String, String> getRegistrationData() {
         Map<String, String> registrationData = new HashMap<>();
         registrationData.put("email", getRandomEmail());
@@ -49,6 +55,7 @@ public class DataGenerator {
         return registrationData;
     }
 
+    @Step("Создаём данные для регистрации пользователя на основе имеющихся данных")
     public static Map<String, String> getRegistrationData(Map<String, String> nonDefaultValue) {
         Map<String, String> defaultData = getRegistrationData();
 
@@ -64,6 +71,7 @@ public class DataGenerator {
         return userData;
     }
 
+    @Step("Создаём данные для регистрации пользователя без поля: {field}")
     public static Map<String, String> getRegistrationDataWithoutOneField(String field) {
         Map<String, String> defaultData = getRegistrationData();
 

@@ -1,8 +1,6 @@
 package tests;
 
-import io.qameta.allure.Description;
-import io.qameta.allure.Epic;
-import io.qameta.allure.Feature;
+import io.qameta.allure.*;
 import io.restassured.response.Response;
 import lib.ApiCoreRequests;
 import lib.BaseTestCase;
@@ -23,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserRegisterTest extends BaseTestCase {
 
     private final ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
-    private final String BASEURL = "https://playground.learnqa.ru/api/user/";
 
     @Test
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Test with wrong user email")
     @Description("This test wrong authorization")
     public void createUserWithWrongEmail() {
@@ -35,23 +33,25 @@ public class UserRegisterTest extends BaseTestCase {
         userWrongEmail.put("email", wrongEmail);
 
         Response responseCreateWrongAuth = apiCoreRequests
-                .makePostRequest(BASEURL, DataGenerator.getRegistrationData(userWrongEmail));
+                .makePostRequest(getUrlAuth(), DataGenerator.getRegistrationData(userWrongEmail));
 
         assertEquals("Invalid email format", responseCreateWrongAuth.asString());
     }
 
     @ParameterizedTest
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Test with missing fields")
     @Description("This test incorrect authorization")
     @ValueSource(strings = {"email", "password", "username", "firstName", "lastName"})
     public void createUserWithoutOneField(String missingField) {
         Response responseCreateIncorrectAuth = apiCoreRequests
-                .makePostRequest(BASEURL, DataGenerator.getRegistrationDataWithoutOneField(missingField));
+                .makePostRequest(getUrlAuth(), DataGenerator.getRegistrationDataWithoutOneField(missingField));
 
         assertResponseTextEquals(responseCreateIncorrectAuth, "The following required params are missed: " + missingField);
     }
 
     @Test
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Test with short firstname")
     @Description("This test incorrect authorization")
     public void createUserWithShortName() {
@@ -61,12 +61,13 @@ public class UserRegisterTest extends BaseTestCase {
         userData.put("firstName", shortFirstName);
 
         Response responseAuthShortName = apiCoreRequests
-                .makePostRequest(BASEURL, DataGenerator.getRegistrationData(userData));
+                .makePostRequest(getUrlAuth(), DataGenerator.getRegistrationData(userData));
 
         assertResponseTextEquals(responseAuthShortName, "The value of 'firstName' field is too short");
     }
 
     @Test
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Test with too long firstname")
     @Description("This test incorrect authorization")
     public void createUserWithLongName() {
@@ -76,7 +77,7 @@ public class UserRegisterTest extends BaseTestCase {
         userData.put("firstName", longFirstName);
 
         Response responseAuthShortName = apiCoreRequests
-                .makePostRequest(BASEURL, DataGenerator.getRegistrationData(userData));
+                .makePostRequest(getUrlAuth(), DataGenerator.getRegistrationData(userData));
 
         assertResponseTextEquals(responseAuthShortName, "The value of 'firstName' field is too long");
     }

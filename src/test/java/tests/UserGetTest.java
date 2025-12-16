@@ -1,6 +1,6 @@
 package tests;
 
-import io.qameta.allure.Description;
+import io.qameta.allure.*;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import lib.ApiCoreRequests;
@@ -12,13 +12,15 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+@Epic("Authorisation cases")
+@Feature("Authorization")
 public class UserGetTest extends BaseTestCase {
-
-    private static final String LOGINURL = "https://playground.learnqa.ru/api/user/login";
 
     ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
 
     @Test
+    @Issue("BUG-789")
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Requesting another user's data")
     @Description("Log in as one user, but get user's data from another")
     public void testGetUserDetailsAuthAsSameUser() {
@@ -26,7 +28,7 @@ public class UserGetTest extends BaseTestCase {
         authUser.put("email", "vinkotov@example.com");
         authUser.put("password", "1234");
 
-        Response responseGetAuth = apiCoreRequests.makePostRequest(LOGINURL, authUser);
+        Response responseGetAuth = apiCoreRequests.makePostRequest(getUrlLogin(), authUser);
 
         String header = this.getHeader(responseGetAuth, "x-csrf-token");
         String cookie = this.getCookie(responseGetAuth, "auth_sid");

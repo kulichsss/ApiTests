@@ -8,7 +8,8 @@ import java.util.Map;
 import static org.hamcrest.Matchers.hasKey;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class BaseTestCase {
+public class BaseTestCase extends TestBase{
+
     protected String getHeader(Response Response, String name) {
         Headers headers = Response.getHeaders();
 

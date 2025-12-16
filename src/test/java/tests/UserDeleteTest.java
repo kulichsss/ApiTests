@@ -1,6 +1,6 @@
 package tests;
 
-import io.qameta.allure.Description;
+import io.qameta.allure.*;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lib.ApiCoreRequests;
@@ -13,14 +13,14 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+@Epic("Authorisation cases")
+@Feature("Authorization")
 public class UserDeleteTest extends BaseTestCase {
-
-    private static final String URL_AUTH = "https://playground.learnqa.ru/api/user/";
-    private static final String URL_LOGIN = "https://playground.learnqa.ru/api/user/login";
 
     ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
 
     @Test
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Negative case. Deleting a user by ID 2")
     @Description("Attempt to delete a user under an authorized system user. User ID 2")
     public void deleteSystemUserData() {
@@ -31,7 +31,7 @@ public class UserDeleteTest extends BaseTestCase {
         userData.put("password", "1234");
 
         //LOGIN
-        Response responseGetAuth = apiCoreRequests.makePostRequest(URL_LOGIN, userData);
+        Response responseGetAuth = apiCoreRequests.makePostRequest(getUrlLogin(), userData);
         String userId = responseGetAuth.jsonPath().getString("user_id");
 
         //Edit with wrong id
@@ -40,7 +40,7 @@ public class UserDeleteTest extends BaseTestCase {
         editData.put("firstName", newName);
 
         Response responseDeleteUser = apiCoreRequests.makeDeletedRequestWithHeaderAndCookie(
-                URL_AUTH + userId,
+                getUrlAuth() + userId,
                 this.getHeader(responseGetAuth, "x-csrf-token"),
                 this.getCookie(responseGetAuth, "auth_sid")
         );
@@ -48,6 +48,7 @@ public class UserDeleteTest extends BaseTestCase {
     }
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
     @DisplayName("Positive case. Delete new user")
     @Description("Create a user, log in as the user, delete the user, " +
             "then try to retrieve the user's data using the ID and verify that the user has been deleted.")
@@ -59,7 +60,7 @@ public class UserDeleteTest extends BaseTestCase {
         Map<String, String> userDataWithEmail = DataGenerator.getRegistrationData(userData);
 
         //AUTH
-        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(URL_AUTH, userDataWithEmail);
+        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(getUrlAuth(), userDataWithEmail);
         String userId = responseCreateAuth.getString("id");
 
         Map<String, String> authData = new HashMap<>();
@@ -67,21 +68,22 @@ public class UserDeleteTest extends BaseTestCase {
         authData.put("password", userDataWithEmail.get("password"));
 
         //LOGIN
-        Response responseGetAuth = apiCoreRequests.makePostRequest(URL_LOGIN, authData);
+        Response responseGetAuth = apiCoreRequests.makePostRequest(getUrlLogin(), authData);
 
         //DELETED
         Response responseDeleteUser = apiCoreRequests.makeDeletedRequestWithHeaderAndCookie(
-                URL_AUTH + userId,
+                getUrlAuth() + userId,
                 this.getHeader(responseGetAuth, "x-csrf-token"),
                 this.getCookie(responseGetAuth, "auth_sid")
         );
 
         //CHECK
-        Response responseGetAuthCheck = apiCoreRequests.makePostRequest(URL_LOGIN, authData);
+        Response responseGetAuthCheck = apiCoreRequests.makePostRequest(getUrlLogin(), authData);
         Assertions.assertResponseTextEquals(responseGetAuthCheck, "Invalid username/password supplied");
     }
 
     @Test
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Negative case. Deleting a user by another user")
     @Description("Try to delete a user while logged in as another user")
     public void deleteUserDataWithAnotherUser() {
@@ -92,7 +94,7 @@ public class UserDeleteTest extends BaseTestCase {
         Map<String, String> userDataWithEmail = DataGenerator.getRegistrationData(userData);
 
         //AUTH
-        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(URL_AUTH, userDataWithEmail);
+        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(getUrlAuth(), userDataWithEmail);
         String userId = responseCreateAuth.getString("id");
         String anotherUserId = "12345";
 
@@ -101,11 +103,11 @@ public class UserDeleteTest extends BaseTestCase {
         authData.put("password", userDataWithEmail.get("password"));
 
         //LOGIN
-        Response responseGetAuth = apiCoreRequests.makePostRequest(URL_LOGIN, authData);
+        Response responseGetAuth = apiCoreRequests.makePostRequest(getUrlLogin(), authData);
 
         //DELETED
         Response responseDeleteUser = apiCoreRequests.makeDeletedRequestWithHeaderAndCookie(
-                URL_AUTH + (userId.equals(anotherUserId)?anotherUserId+"1":anotherUserId),
+                getUrlAuth() + (userId.equals(anotherUserId)?anotherUserId+"1":anotherUserId),
                 this.getHeader(responseGetAuth, "x-csrf-token"),
                 this.getCookie(responseGetAuth, "auth_sid")
         );

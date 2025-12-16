@@ -1,7 +1,6 @@
 package tests;
 
-import io.qameta.allure.Description;
-import io.restassured.RestAssured;
+import io.qameta.allure.*;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import lib.ApiCoreRequests;
@@ -14,13 +13,15 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+@Epic("Authorisation cases")
+@Feature("Authorization")
 public class UserEditTest extends BaseTestCase {
-    private static final String URL_AUTH = "https://playground.learnqa.ru/api/user/";
-    private static final String URL_LOGIN = "https://playground.learnqa.ru/api/user/login";
 
     ApiCoreRequests apiCoreRequests = new ApiCoreRequests();
 
     @Test
+    @Issue("BUG-781")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Negative case. Edit user data while being unauthorized")
     @Description("Let's try to change the user's data while being unauthorized")
     public void editUserDataWithUnauth() {
@@ -31,13 +32,15 @@ public class UserEditTest extends BaseTestCase {
         editData.put("firstName", newName);
 
         Response responseEditUser = apiCoreRequests.makePutRequestWithHeaderAndCookie(
-                    URL_AUTH + "11",
+                    getUrlAuth() + "11",
                     editData
             );
         Assertions.assertResponseTextEquals(responseEditUser, "{\"error\":\"Auth token not supplied\"}");
     }
 
     @Test
+    @Issue("BUG-780")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Negative case. Edit user data while being authorized by another user")
     @Description("Let's try to change the user's data while being authorized by another user")
     public void editUserDataWithAnotherUser() {
@@ -48,7 +51,7 @@ public class UserEditTest extends BaseTestCase {
         Map<String, String> userDataWithEmail = DataGenerator.getRegistrationData(userData);
 
         //AUTH
-        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(URL_AUTH, userDataWithEmail);
+        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(getUrlAuth(), userDataWithEmail);
         String userId = responseCreateAuth.getString("id");
 
         Map<String, String> authData = new HashMap<>();
@@ -56,7 +59,7 @@ public class UserEditTest extends BaseTestCase {
         authData.put("password", userDataWithEmail.get("password"));
 
         //LOGIN
-        Response responseGetAuth = apiCoreRequests.makePostRequest(URL_LOGIN, authData);
+        Response responseGetAuth = apiCoreRequests.makePostRequest(getUrlLogin(), authData);
 
         //Edit with wrong id
         String newName = "Change Name";
@@ -64,7 +67,7 @@ public class UserEditTest extends BaseTestCase {
         editData.put("firstName", newName);
 
         Response responseEditUser = apiCoreRequests.makePutRequestWithHeaderAndCookie(
-                URL_AUTH + "11",
+                getUrlAuth() + "11",
                 this.getHeader(responseGetAuth, "x-csrf-token"),
                 this.getCookie(responseGetAuth, "auth_sid"),
                 editData
@@ -73,6 +76,8 @@ public class UserEditTest extends BaseTestCase {
     }
 
     @Test
+    @Issue("BUG-782")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Negative case. Edit user's email on incorrect")
     @Description("Let's try to change the user's email while being logged in as the same user, to a new email without the @ symbol")
     public void editUserDataWithWrongEmail() {
@@ -83,7 +88,7 @@ public class UserEditTest extends BaseTestCase {
         Map<String, String> userDataWithEmail = DataGenerator.getRegistrationData(userData);
 
         //AUTH
-        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(URL_AUTH, userDataWithEmail);
+        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(getUrlAuth(), userDataWithEmail);
         String userId = responseCreateAuth.getString("id");
 
         Map<String, String> authData = new HashMap<>();
@@ -91,7 +96,7 @@ public class UserEditTest extends BaseTestCase {
         authData.put("password", userDataWithEmail.get("password"));
 
         //LOGIN
-        Response responseGetAuth = apiCoreRequests.makePostRequest(URL_LOGIN, authData);
+        Response responseGetAuth = apiCoreRequests.makePostRequest(getUrlLogin(), authData);
 
         //Edit with wrong id
         String newEmail = DataGenerator.getWrongEmail(5);
@@ -99,7 +104,7 @@ public class UserEditTest extends BaseTestCase {
         editData.put("email", newEmail);
 
         Response responseEditUser = apiCoreRequests.makePutRequestWithHeaderAndCookie(
-                URL_AUTH + userId,
+                getUrlAuth() + userId,
                 this.getHeader(responseGetAuth, "x-csrf-token"),
                 this.getCookie(responseGetAuth, "auth_sid"),
                 editData
@@ -108,6 +113,8 @@ public class UserEditTest extends BaseTestCase {
     }
 
     @Test
+    @Issue("BUG-783")
+    @Severity(SeverityLevel.NORMAL)
     @DisplayName("Negative case. Edit user's firstname on incorrect")
     @Description("Let's try to change the user's firstName while being logged in as the same user, to a very short value of one character")
     public void editUserDataWithTooShortFirstname() {
@@ -118,7 +125,7 @@ public class UserEditTest extends BaseTestCase {
         Map<String, String> userDataWithEmail = DataGenerator.getRegistrationData(userData);
 
         //AUTH
-        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(URL_AUTH, userDataWithEmail);
+        JsonPath responseCreateAuth = apiCoreRequests.makeJsonPostRequest(getUrlAuth(), userDataWithEmail);
         String userId = responseCreateAuth.getString("id");
 
         Map<String, String> authData = new HashMap<>();
@@ -126,7 +133,7 @@ public class UserEditTest extends BaseTestCase {
         authData.put("password", userDataWithEmail.get("password"));
 
         //LOGIN
-        Response responseGetAuth = apiCoreRequests.makePostRequest(URL_LOGIN, authData);
+        Response responseGetAuth = apiCoreRequests.makePostRequest(getUrlLogin(), authData);
 
         //Edit with wrong id
         String newName = "C";
@@ -134,7 +141,7 @@ public class UserEditTest extends BaseTestCase {
         editData.put("firstName", newName);
 
         Response responseEditUser = apiCoreRequests.makePutRequestWithHeaderAndCookie(
-                URL_AUTH + userId,
+                getUrlAuth() + userId,
                 this.getHeader(responseGetAuth, "x-csrf-token"),
                 this.getCookie(responseGetAuth, "auth_sid"),
                 editData
